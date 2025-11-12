@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Iconos PWA - FRUTI TECH</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #FF6B6B;
+            text-align: center;
+        }
+        button {
+            background: #6BCF7F;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+        }
+        button:hover {
+            background: #5AB86F;
+        }
+        .iconos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .icono-item {
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            max-width: 100%;
+        }
+        .download-link {
+            display: block;
+            margin-top: 10px;
+            color: #FF6B6B;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .download-link:hover {
+            text-decoration: underline;
+        }
+        .instrucciones {
+            background: #FFF9E5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 5px solid #FFD93D;
+        }
+        .instrucciones h3 {
+            color: #FF6B6B;
+            margin-top: 0;
+        }
+        .instrucciones ol {
+            margin-left: 20px;
+        }
+        .instrucciones li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍹 Generador de Iconos PWA</h1>
+        <p style="text-align: center; color: #666;">
+            Haz clic en el botón para generar todos los iconos necesarios para tu PWA
+        </p>
+
+        <button onclick="generarTodosLosIconos()">🎨 Generar Todos los Iconos</button>
+
+        <div id="iconosContainer" class="iconos-grid"></div>
+
+        <div class="instrucciones">
+            <h3>📋 Instrucciones:</h3>
+            <ol>
+                <li>Haz clic en "Generar Todos los Iconos"</li>
+                <li>Haz clic derecho en cada imagen y selecciona "Guardar imagen como..."</li>
+                <li>Guarda cada icono en la carpeta <strong>icons/</strong> con el nombre indicado</li>
+                <li>Los nombres deben ser: <code>icon-72x72.png</code>, <code>icon-96x96.png</code>, etc.</li>
+                <li>Una vez guardados todos los iconos, tu PWA estará lista para instalar</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const tamaños = [72, 96, 128, 144, 152, 192, 384, 512];
+
+        function generarIcono(tamaño) {
+            const canvas = document.createElement('canvas');
+            canvas.width = tamaño;
+            canvas.height = tamaño;
+            const ctx = canvas.getContext('2d');
+
+            // Fondo degradado
+            const gradient = ctx.createLinearGradient(0, 0, tamaño, tamaño);
+            gradient.addColorStop(0, '#FF6B6B');
+            gradient.addColorStop(0.5, '#FF9800');
+            gradient.addColorStop(1, '#FFD93D');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, tamaño, tamaño);
+
+            // Círculo central
+            ctx.beginPath();
+            ctx.arc(tamaño / 2, tamaño / 2, tamaño / 3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fill();
+
+            // Emoji o texto
+            const fontSize = Math.floor(tamaño * 0.5);
+            ctx.font = `${fontSize}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Intentar usar emoji
+            ctx.fillStyle = 'white';
+            ctx.fillText('🍹', tamaño / 2, tamaño / 2);
+
+            // Borde redondeado
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = tamaño * 0.05;
+            ctx.beginPath();
+            ctx.arc(tamaño / 2, tamaño / 2, (tamaño / 2) - (ctx.lineWidth / 2), 0, Math.PI * 2);
+            ctx.stroke();
+
+            return canvas;
+        }
+
+        function descargarIcono(canvas, nombre) {
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = nombre;
+                link.textContent = `📥 Descargar ${nombre}`;
+                link.className = 'download-link';
+                return link;
+            });
+        }
+
+        function generarTodosLosIconos() {
+            const container = document.getElementById('iconosContainer');
+            container.innerHTML = '';
+
+            tamaños.forEach(tamaño => {
+                const div = document.createElement('div');
+                div.className = 'icono-item';
+
+                const canvas = generarIcono(tamaño);
+                canvas.id = `icon-${tamaño}`;
+
+                const label = document.createElement('p');
+                label.textContent = `${tamaño}x${tamaño}`;
+                label.style.fontWeight = 'bold';
+                label.style.marginBottom = '10px';
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = `💾 Guardar`;
+                downloadBtn.style.margin = '10px auto';
+                downloadBtn.style.padding = '10px 20px';
+                downloadBtn.style.fontSize = '14px';
+                downloadBtn.onclick = () => {
+                    canvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `icon-${tamaño}x${tamaño}.png`;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                    });
+                };
+
+                div.appendChild(label);
+                div.appendChild(canvas);
+                div.appendChild(downloadBtn);
+                container.appendChild(div);
+            });
+
+            // Mensaje de éxito
+            const mensaje = document.createElement('div');
+            mensaje.style.background = '#d4edda';
+            mensaje.style.color = '#155724';
+            mensaje.style.padding = '20px';
+            mensaje.style.borderRadius = '10px';
+            mensaje.style.marginTop = '20px';
+            mensaje.style.textAlign = 'center';
+            mensaje.style.fontWeight = 'bold';
+            mensaje.innerHTML = '✅ Iconos generados! Haz clic en cada botón "💾 Guardar" para descargar';
+            container.insertBefore(mensaje, container.firstChild);
+        }
+    </script>
+</body>
+</html>
